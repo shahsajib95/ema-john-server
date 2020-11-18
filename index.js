@@ -33,15 +33,37 @@ client.connect(err => {
 
     app.post('/addtocart', (req, res) => {
         cart.insertOne(
-            { _id: req.body._id, count: 1, date: Date.now() }
+            { _id: req.body._id, count: 1 }
         )
     })
 
     app.patch('/updateCart', (req, res) => {
         cart.findOneAndUpdate(
-            { _id: req.body._id},
-            {$inc: { count: 1} }
+            { _id: req.body._id },
+            { $inc: { count: 1 } }
         )
+    })
+
+    app.patch('/decreaseCart', (req, res) => {
+        cart.updateOne(
+            { _id: req.body._id},
+            { $set: { count:  req.body.count } }
+        )
+    })
+
+    app.delete('/deleteProduct', (req, res)=>{
+        cart.deleteOne(
+            {_id: req.body._id}
+        )
+    })
+
+    app.get('/products', (req, res)=>{
+        const filter = req.query.search
+        console.log(filter)
+        allProducts.find({ name: { $regex: filter } })
+        .toArray((err, documents)=>{
+            res.status(200).send(documents)
+        })
     })
 
     app.get('/cartproduct', (req, res) => {
